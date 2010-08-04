@@ -38,5 +38,5 @@ class OpenSubtitlesAgent(Agent.Movies):
     if match is not None:
       results.Append(match)
 
-  def update(self, metadata, lang):
+  def update(self, metadata, media, lang):
     pass

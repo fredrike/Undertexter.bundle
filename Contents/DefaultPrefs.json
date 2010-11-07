@@ -1,0 +1,13 @@
+[
+        {
+                "id": "langPref",
+                "label": "Subtitle Language",
+                "type": "enum",
+                "values": ["English","Albanian","Arabic","Armenian","Bosnian","Bulgarian","Catalan","Chinese","Croatian","Czech","Danish","Dutch",
+                           "Esperanto","Estonian","Farsi","Finnish","French","Galician","Georgian","German","Greek","Hebrew","Hindi",
+                           "Hungarian","Icelandic","Indonesian","Italian","Japanese","Kazakh","Korean","Latvian","Lithuanian","Luxembourgish",
+                           "Macedonian","Malay","Norwegian","Occitan","Polish","Portuguese","Portuguese-BR","Romanian","Russian","Serbian","Slovak",
+                           "Slovenian","Spanish","Swedish","Syriac","Thai","Turkish","Ukrainian","Urdu","Vietnamese"],
+                "default": "English"
+        }
+]

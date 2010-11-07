@@ -45,7 +45,6 @@ class OpenSubtitlesAgent(Agent.Movies):
     proxy = XMLRPC.Proxy(OS_API)
     for i in media.items:
       for p in i.parts:
-        #Log(p.openSubtitleHash)
         token = proxy.LogIn('', '', 'en', OS_PLEX_USERAGENT)['token']
         subtitleResponse = proxy.SearchSubtitles(token,[{'sublanguageid':Locale.Language.Match(Prefs["langPref"]), 'moviehash':p.openSubtitleHash, 'moviebytesize':p.size}])['data']
         if subtitleResponse != False:
@@ -54,4 +53,4 @@ class OpenSubtitlesAgent(Agent.Movies):
           gzipper = GzipFile(fileobj=subGz)      
           subText = gzipper.read()
           del gzipper
-          p.subtitles[Locale.Language.Match(Locale.Language.Match(Prefs["langPref"]))][subUrl] = Proxy.Media(subText)
+          p.subtitles[Locale.Language.Match(Prefs["langPref"])][subUrl] = Proxy.Media(subText)

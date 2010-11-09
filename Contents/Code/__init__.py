@@ -6,6 +6,7 @@ from StringIO import StringIO
 OS_API = 'http://api.opensubtitles.org/xml-rpc'
 OS_LANGUAGE_CODES = 'http://www.opensubtitles.org/addons/export_languages.php'
 OS_PLEX_USERAGENT = 'plexapp.com v9.0'
+subtitleExt       = ['utf','utf8','utf-8','sub','srt','smi','rt','txt','ssa','aqt','jss','ass','idx']
  
 def Start():
   HTTP.CacheTime = CACHE_1DAY
@@ -46,11 +47,17 @@ class OpenSubtitlesAgent(Agent.Movies):
     for i in media.items:
       for p in i.parts:
         token = proxy.LogIn('', '', 'en', OS_PLEX_USERAGENT)['token']
-        subtitleResponse = proxy.SearchSubtitles(token,[{'sublanguageid':Locale.Language.Match(Prefs["langPref"]), 'moviehash':p.openSubtitleHash, 'moviebytesize':p.size}])['data']
+        requestList = [{'sublanguageid':Prefs["langPref1"], 'moviehash':p.openSubtitleHash, 'moviebytesize':str(p.size)}]
+        if Prefs["langPref2"] != 'None':
+          requestList.append({'sublanguageid':Prefs["langPref2"], 'moviehash':p.openSubtitleHash, 'moviebytesize':str(p.size)})
+        subtitleResponse = proxy.SearchSubtitles(token,requestList)['data']
+        #Log(requestList)
         if subtitleResponse != False:
-          subUrl = subtitleResponse[0]['SubDownloadLink']
-          subGz = StringIO(HTTP.Request(subUrl))
-          gzipper = GzipFile(fileobj=subGz)      
-          subText = gzipper.read()
-          del gzipper
-          p.subtitles[Locale.Language.Match(Prefs["langPref"])][subUrl] = Proxy.Media(subText)
+          for st in subtitleResponse:
+            if st['SubFormat'] in subtitleExt:
+              subUrl = st['SubDownloadLink']
+              subGz = StringIO(HTTP.Request(subUrl))
+              gzipper = GzipFile(fileobj=subGz)      
+              subText = gzipper.read()
+              del gzipper
+              p.subtitles[Locale.Language.Match(st['SubLanguageID'])][subUrl] = Proxy.Media(subText, ext=st['SubFormat'])

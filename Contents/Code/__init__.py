@@ -67,4 +67,4 @@ class OpenSubtitlesAgent(Agent.Movies):
               del gzipper
               p.subtitles[Locale.Language.Match(st['SubLanguageID'])][subUrl] = Proxy.Media(subText, ext=st['SubFormat'])
           else:
-            Log('No subtitles available')
+            Log('No subtitles available for language ' + l)

@@ -47,13 +47,17 @@ class OpenSubtitlesAgent(Agent.Movies):
     for i in media.items:
       for p in i.parts:
         token = proxy.LogIn('', '', 'en', OS_PLEX_USERAGENT)['token']
-        requestList = [{'sublanguageid':Prefs["langPref1"], 'moviehash':p.openSubtitleHash, 'moviebytesize':str(p.size)}]
+        langList = [Prefs["langPref1"]]
         if Prefs["langPref2"] != 'None':
-          requestList.append({'sublanguageid':Prefs["langPref2"], 'moviehash':p.openSubtitleHash, 'moviebytesize':str(p.size)})
-        subtitleResponse = proxy.SearchSubtitles(token,requestList)['data']
-        #Log(requestList)
-        if subtitleResponse != False:
-          for st in subtitleResponse:
+          langList.append(Prefs["langPref2"])
+        for l in langList:
+          subtitleResponse = proxy.SearchSubtitles(token,[{'sublanguageid':l, 'moviehash':p.openSubtitleHash, 'moviebytesize':str(p.size)}])['data']
+          if subtitleResponse != False:
+            for st in subtitleResponse: #remove any subtitle formats we don't recognize
+              if st['SubFormat'] not in subtitleExt:
+                Log('Removing a subtitle of type: ' + st['SubFormat'])
+                subtitleResponse.remove(st)
+            st = sorted(subtitleResponse, key=lambda k: int(k['SubDownloadsCnt']), reverse=True)[0] #most downloaded subtitle file for current language
             if st['SubFormat'] in subtitleExt:
               subUrl = st['SubDownloadLink']
               subGz = StringIO(HTTP.Request(subUrl))

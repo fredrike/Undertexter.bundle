@@ -39,7 +39,7 @@ class OpenSubtitlesAgent(Agent.Movies):
   def search(self, results, media, lang):
     results.Append(MetadataSearchResult(
       id    = 'null',
-      score = 100    ))
+      score = 100  ))
     
   def update(self, metadata, media, lang):
     HTTP.Headers['User-agent'] = 'plexapp.com v9.0'

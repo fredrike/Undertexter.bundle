@@ -51,6 +51,7 @@ class OpenSubtitlesAgent(Agent.Movies):
         if Prefs["langPref2"] != 'None':
           langList.append(Prefs["langPref2"])
         for l in langList:
+          Log('Looking for match for GUID %s and size %d' % (p.openSubtitleHash, p.size))
           subtitleResponse = proxy.SearchSubtitles(token,[{'sublanguageid':l, 'moviehash':p.openSubtitleHash, 'moviebytesize':str(p.size)}])['data']
           if subtitleResponse != False:
             for st in subtitleResponse: #remove any subtitle formats we don't recognize
@@ -65,3 +66,5 @@ class OpenSubtitlesAgent(Agent.Movies):
               subText = gzipper.read()
               del gzipper
               p.subtitles[Locale.Language.Match(st['SubLanguageID'])][subUrl] = Proxy.Media(subText, ext=st['SubFormat'])
+          else:
+            Log('No subtitles available')

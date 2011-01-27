@@ -6,7 +6,7 @@ from StringIO import StringIO
 OS_API = 'http://api.opensubtitles.org/xml-rpc'
 OS_LANGUAGE_CODES = 'http://www.opensubtitles.org/addons/export_languages.php'
 OS_PLEX_USERAGENT = 'plexapp.com v9.0'
-subtitleExt       = ['utf','utf8','utf-8','sub','srt','smi','rt','txt','ssa','aqt','jss','ass','idx']
+subtitleExt       = ['utf','utf8','utf-8','sub','srt','smi','rt','ssa','aqt','jss','ass','idx']
  
 def Start():
   HTTP.CacheTime = CACHE_1DAY

@@ -2,7 +2,7 @@
 #Subtitles service allowed by www.OpenSubtitles.org
 from gzip import GzipFile
 from StringIO import StringIO
- 
+
 OS_API = 'http://api.opensubtitles.org/xml-rpc'
 OS_LANGUAGE_CODES = 'http://www.opensubtitles.org/addons/export_languages.php'
 OS_PLEX_USERAGENT = 'plexapp.com v9.0'
@@ -62,7 +62,7 @@ class OpenSubtitlesAgentMovies(Agent.Movies):
             if st['SubFormat'] in subtitleExt:
               subUrl = st['SubDownloadLink']
               subGz = StringIO(HTTP.Request(subUrl))
-              gzipper = GzipFile(fileobj=subGz)      
+              gzipper = GzipFile(fileobj=subGz)
               subText = gzipper.read()
               del gzipper
               p.subtitles[Locale.Language.Match(st['SubLanguageID'])][subUrl] = Proxy.Media(subText, ext=st['SubFormat'])
@@ -83,28 +83,31 @@ class OpenSubtitlesAgentTV(Agent.TV_Shows):
   def update(self, metadata, media, lang):
     HTTP.Headers['User-agent'] = 'plexapp.com v9.0'
     proxy = XMLRPC.Proxy(OS_API)
-    for e in media.seasons[s].episodes:
-      for i in media.seasons[s].episodes[e].items:
-        for part in i.parts:
-          token = proxy.LogIn('', '', 'en', OS_PLEX_USERAGENT)['token']
-          langList = [Prefs["langPref1"]]
-          if Prefs["langPref2"] != 'None':
-            langList.append(Prefs["langPref2"])
-          for l in langList:
-            Log('Looking for match for GUID %s and size %d' % (p.openSubtitleHash, p.size))
-            subtitleResponse = proxy.SearchSubtitles(token,[{'sublanguageid':l, 'moviehash':p.openSubtitleHash, 'moviebytesize':str(p.size)}])['data']
-            if subtitleResponse != False:
-              for st in subtitleResponse: #remove any subtitle formats we don't recognize
-                if st['SubFormat'] not in subtitleExt:
-                  Log('Removing a subtitle of type: ' + st['SubFormat'])
-                  subtitleResponse.remove(st)
-              st = sorted(subtitleResponse, key=lambda k: int(k['SubDownloadsCnt']), reverse=True)[0] #most downloaded subtitle file for current language
-              if st['SubFormat'] in subtitleExt:
-                subUrl = st['SubDownloadLink']
-                subGz = StringIO(HTTP.Request(subUrl))
-                gzipper = GzipFile(fileobj=subGz)      
-                subText = gzipper.read()
-                del gzipper
-                p.subtitles[Locale.Language.Match(st['SubLanguageID'])][subUrl] = Proxy.Media(subText, ext=st['SubFormat'])
-            else:
-              Log('No subtitles available for language ' + l)
+    for s in media.seasons:
+      # just like in the Local Media Agent, if we have a date-based season skip for now.
+      if int(s) < 1900:
+        for e in media.seasons[s].episodes:
+          for i in media.seasons[s].episodes[e].items:
+            for p in i.parts:
+              token = proxy.LogIn('', '', 'en', OS_PLEX_USERAGENT)['token']
+              langList = [Prefs["langPref1"]]
+              if Prefs["langPref2"] != 'None':
+                langList.append(Prefs["langPref2"])
+              for l in langList:
+                Log('Looking for match for GUID %s and size %d' % (p.openSubtitleHash, p.size))
+                subtitleResponse = proxy.SearchSubtitles(token,[{'sublanguageid':l, 'moviehash':p.openSubtitleHash, 'moviebytesize':str(p.size)}])['data']
+                if subtitleResponse != False:
+                  for st in subtitleResponse: #remove any subtitle formats we don't recognize
+                    if st['SubFormat'] not in subtitleExt:
+                      Log('Removing a subtitle of type: ' + st['SubFormat'])
+                      subtitleResponse.remove(st)
+                  st = sorted(subtitleResponse, key=lambda k: int(k['SubDownloadsCnt']), reverse=True)[0] #most downloaded subtitle file for current language
+                  if st['SubFormat'] in subtitleExt:
+                    subUrl = st['SubDownloadLink']
+                    subGz = StringIO(HTTP.Request(subUrl))
+                    gzipper = GzipFile(fileobj=subGz)      
+                    subText = gzipper.read()
+                    del gzipper
+                    p.subtitles[Locale.Language.Match(st['SubLanguageID'])][subUrl] = Proxy.Media(subText, ext=st['SubFormat'])
+                else:
+                  Log('No subtitles available for language ' + l)

@@ -1,7 +1,5 @@
 #opensubtitles.org
 #Subtitles service allowed by www.OpenSubtitles.org
-from gzip import GzipFile
-from StringIO import StringIO
 
 OS_API = 'http://api.opensubtitles.org/xml-rpc'
 OS_LANGUAGE_CODES = 'http://www.opensubtitles.org/addons/export_languages.php'
@@ -61,11 +59,9 @@ class OpenSubtitlesAgentMovies(Agent.Movies):
             st = sorted(subtitleResponse, key=lambda k: int(k['SubDownloadsCnt']), reverse=True)[0] #most downloaded subtitle file for current language
             if st['SubFormat'] in subtitleExt:
               subUrl = st['SubDownloadLink']
-              subGz = StringIO(HTTP.Request(subUrl))
-              gzipper = GzipFile(fileobj=subGz)
-              subText = gzipper.read()
-              del gzipper
-              p.subtitles[Locale.Language.Match(st['SubLanguageID'])][subUrl] = Proxy.Media(subText, ext=st['SubFormat'])
+              subGz = HTTP.Request(subUrl, headers={'Accept-Encoding':''}).content
+              subData = Archive.GzipDecompress(subGz)
+              p.subtitles[Locale.Language.Match(st['SubLanguageID'])][subUrl] = Proxy.Media(subData, ext=st['SubFormat'])
           else:
             Log('No subtitles available for language ' + l)
 
@@ -104,10 +100,8 @@ class OpenSubtitlesAgentTV(Agent.TV_Shows):
                   st = sorted(subtitleResponse, key=lambda k: int(k['SubDownloadsCnt']), reverse=True)[0] #most downloaded subtitle file for current language
                   if st['SubFormat'] in subtitleExt:
                     subUrl = st['SubDownloadLink']
-                    subGz = StringIO(HTTP.Request(subUrl))
-                    gzipper = GzipFile(fileobj=subGz)      
-                    subText = gzipper.read()
-                    del gzipper
-                    p.subtitles[Locale.Language.Match(st['SubLanguageID'])][subUrl] = Proxy.Media(subText, ext=st['SubFormat'])
+                    subGz = HTTP.Request(subUrl, headers={'Accept-Encoding':''}).content
+                    subData = Archive.GzipDecompress(subGz)
+                    p.subtitles[Locale.Language.Match(st['SubLanguageID'])][subUrl] = Proxy.Media(subData, ext=st['SubFormat'])
                 else:
                   Log('No subtitles available for language ' + l)

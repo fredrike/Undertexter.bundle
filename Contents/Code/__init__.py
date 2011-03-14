@@ -41,6 +41,7 @@ class OpenSubtitlesAgentMovies(Agent.Movies):
     
   def update(self, metadata, media, lang):
     HTTP.Headers['User-agent'] = 'plexapp.com v9.0'
+    
     proxy = XMLRPC.Proxy(OS_API)
     for i in media.items:
       for p in i.parts:

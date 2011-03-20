@@ -39,13 +39,19 @@ def opensubtitlesProxy():
   token = proxy.LogIn(username, password, 'en', OS_PLEX_USERAGENT)['token']
   return (proxy, token)
 
-def fetchSubtitles(proxy, token, part):
+def fetchSubtitles(proxy, token, part, imdbID=''):
   langList = [Prefs["langPref1"]]
-  if Prefs["langPref2"] != 'None':
+  if Prefs["langPref2"] != 'None' and Prefs["langPref1"] != Prefs["langPref2"]:
     langList.append(Prefs["langPref2"])
   for l in langList:
     Log('Looking for match for GUID %s and size %d' % (part.openSubtitleHash, part.size))
     subtitleResponse = proxy.SearchSubtitles(token,[{'sublanguageid':l, 'moviehash':part.openSubtitleHash, 'moviebytesize':str(part.size)}])['data']
+    #Log('hash/size search result: ')
+    #Log(subtitleResponse)
+    if subtitleResponse == False and imdbID != '': #let's try the imdbID, if we have one...
+      subtitleResponse = proxy.SearchSubtitles(token,[{'sublanguageid':l, 'imdbid':imdbID}])['data']
+      Log('Found nothing via hash, trying search with imdbid: ' + imdbID)
+      #Log(subtitleResponse)
     if subtitleResponse != False:
       for st in subtitleResponse: #remove any subtitle formats we don't recognize
         if st['SubFormat'] not in subtitleExt:
@@ -67,15 +73,17 @@ class OpenSubtitlesAgentMovies(Agent.Movies):
   contributes_to = ['com.plexapp.agents.imdb']
   
   def search(self, results, media, lang):
+    Log(media.primary_metadata.id)
+    Log(media.primary_metadata.id.split('tt')[1].split('?')[0])
     results.Append(MetadataSearchResult(
-      id    = 'null',
+      id    = media.primary_metadata.id.split('tt')[1].split('?')[0],
       score = 100  ))
     
   def update(self, metadata, media, lang):
     (proxy, token) = opensubtitlesProxy()
     for i in media.items:
       for part in i.parts:
-        fetchSubtitles(proxy, token, part)
+        fetchSubtitles(proxy, token, part, metadata.id)
 
 class OpenSubtitlesAgentTV(Agent.TV_Shows):
   name = 'OpenSubtitles.org'

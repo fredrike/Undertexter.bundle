@@ -1,5 +1,16 @@
 [
         {
+                "id": "username",
+                "label": "Opensubtitles Username:",
+                "type": "text"
+        },
+        {
+                "id": "password",
+                "label": "Opensubtitles Password:",
+                "type": "text",
+                "option": "hidden"
+        },
+        {
                 "id": "langPref1",
                 "label": "Subtitle Language (1)",
                 "type": "enum",

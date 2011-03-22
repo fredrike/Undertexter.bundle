@@ -28,8 +28,8 @@ def GetImdbIdFromHash(openSubtitlesHash, lang):
   else:
     return None
   
-class OpenSubtitlesAgentMovies(Agent.Movies):
-  name = 'OpenSubtitles.org'
+class UndertexterAgentMovies(Agent.Movies):
+  name = 'Undertexter.se'
   languages = [Locale.Language.English]
   primary_provider = False
   contributes_to = ['com.plexapp.agents.imdb']
@@ -66,8 +66,8 @@ class OpenSubtitlesAgentMovies(Agent.Movies):
           else:
             Log('No subtitles available for language ' + l)
 
-class OpenSubtitlesAgentTV(Agent.TV_Shows):
-  name = 'OpenSubtitles.org'
+class UndertexterAgentTV(Agent.TV_Shows):
+  name = 'Undertexter.se'
   languages = [Locale.Language.English]
   primary_provider = False
   contributes_to = ['com.plexapp.agents.thetvdb']
